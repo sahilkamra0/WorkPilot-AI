@@ -1,52 +1,53 @@
+import { prisma } from "../lib/prisma";
 
-type Project = {
-  id: number;
-  name: string;
+
+
+export const getAllProjects = async () => {
+  return await prisma.project.findMany();
 };
 
-const projects: Project[] = [
-  { id: 1, name: "WorkPilot AI" },
-  { id: 2, name: "My First Project" },
-];
 
-export const getAllProjects = () => {
-  return projects;
-};
+export const addProject = async (name: string) => {
+  return await prisma.project.create({
+    data: {
+      name,
+    },
+  });
+};  
 
-let nextProjectId = 3;
+export const updateProject = async (id: number, name: string) => {
+  try {
+    return await prisma.project.update({
+      where: { id },
+      data: { name },
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "P2025"
+    ) {
+      return null;
+    }
 
-export const addProject = (name: string) => {
-  const project = {
-    id: nextProjectId++,
-    name,
-  };
-
-  projects.push(project);
-
-  return project;
-};
-
-export const updateProject = (id: number, name: string) => {
-  const project = projects.find((project) => project.id === id);
-
-  if (!project) {
-    return null;
+    throw error;
   }
-
-  project.name = name;
-
-  return project;
 };
 
-export const deleteProject = (id: number) => {
-  const projectIndex = projects.findIndex((project) => project.id === id);
+export const deleteProject = async (id: number) => {
+  try {
+    return await prisma.project.delete({
+      where: { id },
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "P2025"
+    ) {
+      return null;
+    }
 
-  if (projectIndex === -1) {
-    return null;
+    throw error;
   }
-
-  const deletedProjects = projects.splice(projectIndex, 1);
-
-  return deletedProjects[0];
 };
-

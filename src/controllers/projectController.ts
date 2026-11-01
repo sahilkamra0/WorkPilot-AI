@@ -3,80 +3,74 @@ import { getAllProjects, addProject, updateProject, deleteProject} from "../serv
 import { isValidProjectName } from "../utils/validateProject";
 
 
-export const getProjects = (_req: Request, res: Response) => {
-  const projects = getAllProjects();
-
-  res.json({ projects });
+export const getProjects = async (_req: Request, res: Response) => {
+  const projects = await getAllProjects();
+  res.json(projects);
 };
 
-export const createProject = (req: Request, res: Response) => {
+export const createProject = async (req: Request, res: Response) => {
   const { name } = req.body;
 
   if (!isValidProjectName(name)) {
-  res.status(400).json({
-    message: "Project name must be a non-empty string of at most 100 characters",
-  });
-  return;
-}
+    return res.status(400).json({
+      message: "Project name must be a non-empty string of at most 100 characters",
+    });
+  }
 
-  const project = addProject(name.trim());
+  const project = await addProject(name);
 
   res.status(201).json({
     message: "Project created successfully",
-    project,
-  });
+  project,
+  })
 };
 
-export const editProject = (req: Request, res: Response) => {
+
+export const editProject = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const { name } = req.body;
 
   if (!Number.isInteger(id) || id <= 0) {
-    res.status(400).json({
+    return res.status(400).json({
       message: "Invalid project ID",
     });
-    return;
   }
 
   if (!isValidProjectName(name)) {
-  res.status(400).json({
-    message: "Project name must be a non-empty string of at most 100 characters",
-  });
-  return;
-}
+    return res.status(400).json({
+      message: "Project name must be a non-empty string of at most 100 characters",
+    });
+  }
 
-  const project = updateProject(id, name.trim());
+  const project = await updateProject(id, name);
 
   if (!project) {
-    res.status(404).json({
+    return res.status(404).json({
       message: "Project not found",
     });
-    return;
   }
 
   res.json({
-    message: "Project updated successfully",
+    message: "project updated successfully",
     project,
-  });
+  })
 };
 
-export const removeProject = (req: Request, res: Response) => {
+export const removeProject = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
   if (!Number.isInteger(id) || id <= 0) {
-    res.status(400).json({
+    return res.status(400).json({
       message: "Invalid project ID",
     });
-    return;
   }
 
-  const project = deleteProject(id);
+  const project = await deleteProject(id);
 
   if (!project) {
-    res.status(404).json({
+    return res.status(404).json({
       message: "Project not found",
     });
-    return;
   }
 
   res.json({
@@ -84,4 +78,3 @@ export const removeProject = (req: Request, res: Response) => {
     project,
   });
 };
-
