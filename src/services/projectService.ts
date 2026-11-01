@@ -13,9 +13,11 @@ export const getAllProjects = () => {
   return projects;
 };
 
+let nextProjectId = 3;
+
 export const addProject = (name: string) => {
   const project = {
-    id: projects.length + 1,
+    id: nextProjectId++,
     name,
   };
 
